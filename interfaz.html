@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generar Constancias</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Generar Constancias</h1>
+    <form id="formulario" onsubmit="return false;">
+        <div class="form-group">
+            <label for="tipo">Selecciona el tipo de constancia:</label>
+            <select id="tipo" name="tipo" onchange="mostrarCampos()" required>
+                <option value="">Seleccione...</option>
+                <option value="trabajo">Constancia de Trabajo</option>
+                <option value="consulado">Constancia de Consulado</option>
+                <option value="guarderia">Constancia de Guardería</option>
+            </select>
+        </div>
+
+        <!-- Campos para Constancia de Trabajo -->
+        <div id="trabajo" class="constancia-campos" style="display: none;">
+            <div class="form-group">
+                <label for="nombre_trabajo">Nombre del empleado:</label>
+                <input type="text" id="nombre_trabajo" required>
+            </div>
+            <div class="form-group">
+                <label for="cargo_trabajo">Cargo:</label>
+                <input type="text" id="cargo_trabajo" required>
+            </div>
+            <div class="form-group">
+                <label for="numero_empleado">Número de empleado:</label>
+                <input type="text" id="numero_empleado" required>
+            </div>
+            <div class="form-group">
+                <label for="fecha_inicio_trabajo">Fecha de inicio:</label>
+                <input type="date" id="fecha_inicio_trabajo" required>
+            </div>
+        </div>
+
+        <!-- Campos para Constancia de Consulado -->
+        <div id="consulado" class="constancia-campos" style="display: none;">
+            <div class="form-group">
+                <label for="nombre_consulado">Nombre completo:</label>
+                <input type="text" id="nombre_consulado" required>
+            </div>
+            <div class="form-group">
+                <label for="numero_pasaporte">Número de pasaporte:</label>
+                <input type="text" id="numero_pasaporte" required>
+            </div>
+            <div class="form-group">
+                <label for="tipo_tramite">Tipo de trámite:</label>
+                <input type="text" id="tipo_tramite" required>
+            </div>
+        </div>
+
+        <!-- Campos para Constancia de Guardería -->
+        <div id="guarderia" class="constancia-campos" style="display: none;">
+            <div class="form-group">
+                <label for="nombre_guarderia">Nombre del niño/a:</label>
+                <input type="text" id="nombre_guarderia" required>
+            </div>
+            <div class="form-group">
+                <label for="fecha_nacimiento_guarderia">Fecha de nacimiento:</label>
+                <input type="date" id="fecha_nacimiento_guarderia" required>
+            </div>
+            <div class="form-group">
+                <label for="horario_guarderia">Horario de atención:</label>
+                <input type="text" id="horario_guarderia" required>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <button type="button" onclick="generarPDF()">Generar PDF</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Muestra los campos correspondientes según el tipo de constancia seleccionado
+    function mostrarCampos() {
+        const tipo = document.getElementById('tipo').value;
+        document.querySelectorAll('.constancia-campos').forEach(campo => campo.style.display = 'none');
+        if (tipo) {
+            document.getElementById(tipo).style.display = 'block';
+        }
+    }
+
+    // Función para generar el PDF
+    function generarPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        const tipo = document.getElementById('tipo').value;
+        const fechaEmision = new Date().toLocaleDateString();
+        const empresa = "Universidad Tecnológica De Nogales (UTN)"; // Nombre de la empresa
+
+        let contenido = "";
+        let nombre = "";
+        let detalle = "";
+
+        // Constancia de trabajo
+        if (tipo === "trabajo") {
+            nombre = document.getElementById('nombre_trabajo').value;
+            const cargo = document.getElementById('cargo_trabajo').value;
+            const numeroEmpleado = document.getElementById('numero_empleado').value;
+            const fechaInicio = document.getElementById('fecha_inicio_trabajo').value;
+            contenido = `Por la presente, se certifica que el C. ${nombre}, con número de empleado ${numeroEmpleado}, ha laborado en ${empresa}, desempeñando el cargo de ${cargo} desde el ${fechaInicio}.`;
+            detalle = "Durante su tiempo en la empresa, ha cumplido con sus responsabilidades de manera satisfactoria.";
+        }
+
+        // Constancia de consulado
+        else if (tipo === "consulado") {
+            nombre = document.getElementById('nombre_consulado').value;
+            const numeroPasaporte = document.getElementById('numero_pasaporte').value;
+            const tipoTramite = document.getElementById('tipo_tramite').value;
+            contenido = `El Consulado de [Nombre del país] certifica que el/la ciudadano/a ${nombre}, con pasaporte No. ${numeroPasaporte}, ha solicitado ${tipoTramite}.`;
+            detalle = "Esta solicitud está en proceso de revisión conforme a las leyes y procedimientos consulares del país.";
+        }
+
+        // Constancia de guardería
+        else if (tipo === "guarderia") {
+            nombre = document.getElementById('nombre_guarderia').value;
+            const fechaNacimiento = document.getElementById('fecha_nacimiento_guarderia').value;
+            const horario = document.getElementById('horario_guarderia').value;
+            contenido = `Por la presente, se certifica que el/la niño/a ${nombre}, nacido/a el ${fechaNacimiento}, ha sido inscrito/a en la guardería con horario de atención: ${horario}.`;
+            detalle = "Esta constancia se expide a solicitud de los padres/tutores, para los fines que estime convenientes.";
+        }
+
+        // Crear el PDF
+        doc.setFont("Helvetica", "normal");
+        doc.setFontSize(12);
+        doc.text("CONSTANCIA", 105, 20, { align: "center" });
+        doc.text(`Fecha de emisión: ${fechaEmision}`, 10, 30);
+        doc.text(contenido, 10, 40, { maxWidth: 180 });
+        doc.text(detalle, 10, 60, { maxWidth: 180 });
+        doc.text("\n\nAtentamente,", 10, 80);
+        doc.text("Firma y sello", 10, 100);
+        doc.save(`Constancia_${nombre}.pdf`);
+    }
+</script>
+
+</body>
+</html>
